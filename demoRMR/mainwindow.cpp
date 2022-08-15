@@ -88,14 +88,6 @@ int MainWindow::processThisRobot(TKobukiData robotdata)
 {
 
 
-    if(forwardspeed==0 && rotationspeed!=0)
-        robot.setRotationSpeed(rotationspeed);
-    else if(forwardspeed!=0 && rotationspeed==0)
-        robot.setTranslationSpeed(forwardspeed);
-    else if((forwardspeed!=0 && rotationspeed!=0))
-        robot.setArcSpeed(forwardspeed,forwardspeed/rotationspeed);
-    else
-        robot.setTranslationSpeed(0);
 
 
 
@@ -136,9 +128,7 @@ int MainWindow::processThisCamera(cv::Mat cameraData)
 void MainWindow::on_pushButton_9_clicked() //start button
 {
 
-    forwardspeed=0;
-    rotationspeed=0;
-    //tu sa nastartuju vlakna ktore citaju data z lidaru a robota
+        //tu sa nastartuju vlakna ktore citaju data z lidaru a robota
       /*  laserthreadID=pthread_create(&laserthreadHandle,NULL,&laserUDPVlakno,(void *)this);
       robotthreadID=pthread_create(&robotthreadHandle,NULL,&robotUDPVlakno,(void *)this);*/
     connect(this,SIGNAL(uiValuesChanged(double,double,double)),this,SLOT(setUiValues(double,double,double)));
@@ -150,18 +140,7 @@ void MainWindow::on_pushButton_9_clicked() //start button
 
 
 
-    instance = QJoysticks::getInstance();
 
-    /* Enable the virtual joystick */
-  /*  instance->setVirtualJoystickRange(1);
-    instance->setVirtualJoystickEnabled(true);
-    instance->setVirtualJoystickAxisSensibility(0.7);*/
-    //instance->
-    connect(
-        instance, &QJoysticks::axisChanged,
-        [this]( const int js, const int axis, const qreal value) { if(/*js==0 &&*/ axis==1){forwardspeed=-value*300;}
-            if(/*js==0 &&*/ axis==0){rotationspeed=-value*(3.14159/2.0);}}
-    );
 }
 
 void MainWindow::on_pushButton_2_clicked() //forward

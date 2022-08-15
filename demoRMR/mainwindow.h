@@ -24,7 +24,7 @@
 #include "opencv2/imgcodecs.hpp"
 #include "robot.h"
 
-#include <QJoysticks.h>
+
 namespace Ui {
 class MainWindow;
 }
@@ -67,7 +67,7 @@ private slots:
     void getNewFrame();
 
 private:
-     JOYINFO joystickInfo;
+
     Ui::MainWindow *ui;
      void paintEvent(QPaintEvent *event);// Q_DECL_OVERRIDE;
      int updateLaserPicture;
@@ -78,10 +78,7 @@ private:
      int datacounter;
      QTimer *timer;
 
-     QJoysticks *instance;
 
-     double forwardspeed;//mm/s
-     double rotationspeed;//omega/s
 public slots:
      void setUiValues(double robotX,double robotY,double robotFi);
 signals:

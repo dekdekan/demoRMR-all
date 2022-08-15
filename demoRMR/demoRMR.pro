@@ -7,7 +7,7 @@
 QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
-include ($$PWD/../QJoysticks-master/QJoysticks.pri)
+
 TARGET = demoRMR
 TEMPLATE = app
 LIBS += -lws2_32
