@@ -22,13 +22,18 @@ Robot::~Robot()
     ready_promise.set_value();
     robotthreadHandle.join();
     laserthreadHandle.join();
+    #ifdef useCamera
     camerathreadhandle.join();
+#endif
 #ifdef _WIN32
 WSACleanup();
 #endif;
 }
-
+#ifdef useCamera
 Robot::Robot(std::string ipaddressLaser,int laserportRobot, int laserportMe,std::function<int(LaserMeasurement)> &lascallback,std::string ipaddressRobot,int robotportRobot, int robotportMe,std::function<int(TKobukiData)> &robcallback): wasLaserSet(0),wasRobotSet(0),wasCameraSet(0)
+  #else
+Robot::Robot(std::string ipaddressLaser,int laserportRobot, int laserportMe,std::function<int(LaserMeasurement)> &lascallback,std::string ipaddressRobot,int robotportRobot, int robotportMe,std::function<int(TKobukiData)> &robcallback): wasLaserSet(0),wasRobotSet(0)
+  #endif
 {
 
     setLaserParameters(ipaddressLaser,laserportRobot,laserportMe,lascallback);
@@ -227,15 +232,17 @@ void Robot::robotStart()
         std::function<void(void)> f2 =std::bind(&Robot::laserprocess, this);
         laserthreadHandle=std::move(std::thread(f2));
     }
+    #ifdef useCamera
     if(wasCameraSet==1)
     {
         std::function<void(void)> f3 =std::bind(&Robot::imageViewer, this);
         camerathreadhandle=std::move(std::thread(f3));
     }
+#endif
 
 }
 
-
+#ifdef useCamera
 void Robot::imageViewer()
 {
     cv::VideoCapture cap;
@@ -259,3 +266,4 @@ void Robot::imageViewer()
     }
     cap.release();
 }
+#endif

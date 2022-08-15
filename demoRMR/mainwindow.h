@@ -13,15 +13,7 @@
 #include<string.h>
 #include<stdlib.h>
 #include<vector>
-//#include "ckobuki.h"
-//#include "rplidar.h"
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include "opencv2/imgproc/imgproc.hpp"
-#include "opencv2/highgui/highgui.hpp"
-#include "opencv2/core/utility.hpp"
-#include "opencv2/videoio.hpp"
-#include "opencv2/imgcodecs.hpp"
+
 #include "robot.h"
 
 
@@ -40,7 +32,7 @@ public:
     int actIndex;
     //    cv::Mat frame[3];
 
-    cv::Mat frame[3];
+
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
@@ -48,7 +40,7 @@ public:
 
     int processThisRobot(TKobukiData robotdata);
 
-int processThisCamera(cv::Mat cameraData);
+
 
 private slots:
     void on_pushButton_9_clicked();

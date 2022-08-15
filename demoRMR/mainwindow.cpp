@@ -49,8 +49,7 @@ void MainWindow::paintEvent(QPaintEvent *event)
     if(useCamera1==true && actIndex>-1)
     {
         std::cout<<actIndex<<std::endl;
-        QImage image = QImage((uchar*)frame[actIndex].data, frame[actIndex].cols, frame[actIndex].rows, frame[actIndex].step, QImage::Format_RGB888  );
-        painter.drawImage(rect,image.rgbSwapped());
+
     }
     else
     {
@@ -118,13 +117,7 @@ int MainWindow::processThisLidar(LaserMeasurement laserData)
 }
 
 
-int MainWindow::processThisCamera(cv::Mat cameraData)
-{
-    cameraData.copyTo(frame[(actIndex+1)%3]);
-    actIndex=(actIndex+1)%3;
-    updateLaserPicture=1;
-    return 0;
-}
+
 void MainWindow::on_pushButton_9_clicked() //start button
 {
 
@@ -135,7 +128,6 @@ void MainWindow::on_pushButton_9_clicked() //start button
 
     robot.setLaserParameters("127.0.0.1",52999,5299,/*[](LaserMeasurement dat)->int{std::cout<<"som z lambdy callback"<<std::endl;return 0;}*/std::bind(&MainWindow::processThisLidar,this,std::placeholders::_1));
     robot.setRobotParameters("127.0.0.1",53000,5300,std::bind(&MainWindow::processThisRobot,this,std::placeholders::_1));
-    robot.setCameraParameters("http://127.0.0.1:8889/stream.mjpg",std::bind(&MainWindow::processThisCamera,this,std::placeholders::_1));
     robot.robotStart();
 
 
