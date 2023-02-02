@@ -76,9 +76,7 @@ private:
     std::shared_future<void> readyFuture;
     int wasLaserSet;
     int wasRobotSet;
-    #ifdef useCamera
     int wasCameraSet;
-#endif
     //veci na laser
     LaserMeasurement copyOfLaserData;
     void laserprocess();
@@ -104,9 +102,8 @@ private:
     std::string camera_link;
     std::thread camerathreadhandle;
     std::function<int(cv::Mat)> camera_callback=nullptr;
-    void Robot::imageViewer();
+    void imageViewer();
 #endif
-
     ///
     ///
     struct sockaddr_in las_si_me, las_si_other,las_si_posli;

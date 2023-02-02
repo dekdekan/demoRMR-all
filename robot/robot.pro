@@ -2,8 +2,10 @@ CONFIG -= qt
 
 TEMPLATE = lib
 DEFINES += ROBOT_LIBRARY
+win32 {
 LIBS += -lws2_32
 LIBS += -lWinmm
+}
 CONFIG += c++11
 DESTDIR = ../bin
 
