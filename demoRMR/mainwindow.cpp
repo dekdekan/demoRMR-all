@@ -79,6 +79,17 @@ void MainWindow::paintEvent(QPaintEvent *event)
             }
         }
     }
+    if(updateSkeletonPicture==1 )
+    {
+        painter.setPen(Qt::red);
+        for(int i=0;i<75;i++)
+        {
+            int xp=rect.width()-rect.width() * skeleJoints.joints[i].x+rect.topLeft().x();
+            int yp= (rect.height() *skeleJoints.joints[i].y)+rect.topLeft().y();
+            if(rect.contains(xp,yp))
+                painter.drawEllipse(QPoint(xp, yp),2,2);
+        }
+    }
 }
 
 
@@ -162,6 +173,17 @@ int MainWindow::processThisCamera(cv::Mat cameraData)
     updateLaserPicture=1;
     return 0;
 }
+
+///toto je calback na data zo skeleton trackera, ktory ste podhodili robotu vo funkcii on_pushButton_9_clicked
+/// vola sa ked dojdu nove data z trackera
+int MainWindow::processThisSkeleton(skeleton skeledata)
+{
+
+    memcpy(&skeleJoints,&skeledata,sizeof(skeleton));
+
+    updateSkeletonPicture=1;
+    return 0;
+}
 void MainWindow::on_pushButton_9_clicked() //start button
 {
 
@@ -176,7 +198,7 @@ void MainWindow::on_pushButton_9_clicked() //start button
     robot.setRobotParameters(ipaddress,53000,5300,std::bind(&MainWindow::processThisRobot,this,std::placeholders::_1));
     //---simulator ma port 8889, realny robot 8000
     robot.setCameraParameters("http://"+ipaddress+":8889/stream.mjpg",std::bind(&MainWindow::processThisCamera,this,std::placeholders::_1));
-
+    robot.setSkeletonParameters("127.0.0.1",23432,23432,std::bind(&MainWindow::processThisSkeleton,this,std::placeholders::_1));
     ///ked je vsetko nasetovane tak to tento prikaz spusti (ak nieco nieje setnute,tak to normalne nenastavi.cize ak napr nechcete kameru,vklude vsetky info o nej vymazte)
     robot.robotStart();
 

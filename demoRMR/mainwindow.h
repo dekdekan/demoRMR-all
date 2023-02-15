@@ -52,6 +52,7 @@ public:
     int processThisRobot(TKobukiData robotdata);
 
 int processThisCamera(cv::Mat cameraData);
+int processThisSkeleton(skeleton skeledata);
 
 private slots:
     void on_pushButton_9_clicked();
@@ -79,6 +80,8 @@ private:
      std::string ipaddress;
      Robot robot;
      TKobukiData robotdata;
+     int updateSkeletonPicture;
+     skeleton skeleJoints;
      int datacounter;
      QTimer *timer;
 
