@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 #include <QApplication>
-#include "mmsystem.h"
+//#include "mmsystem.h"
 
 int main(int argc, char *argv[])
 {
