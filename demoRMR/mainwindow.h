@@ -31,12 +31,6 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    bool useCamera1;
-  //  cv::VideoCapture cap;
-
-    int actIndex;
-    //    cv::Mat frame[3];
-
 
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
