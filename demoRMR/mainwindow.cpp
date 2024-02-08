@@ -106,22 +106,26 @@ void  MainWindow::setUiValues(double robotX,double robotY,double robotFi)
 /// vola sa vzdy ked dojdu nove data z robota. nemusite nic riesit, proste sa to stane
 int MainWindow::processThisRobot(TKobukiData robotdata)
 {
-
+///TU PISTE KOD... TOTO JE TO MIESTO KED NEVIETE KDE ZACAT,TAK JE TO NAOZAJ TU. AK AJ TAK NEVIETE, SPYTAJTE SA CVICIACEHO MA TU NATO STRING KTORY DA DO HLADANIA XXX
+///
 
     ///tu mozete robit s datami z robota
     /// ale nic vypoctovo narocne - to iste vlakno ktore cita data z robota
     ///teraz tu posielam rychlosti na zaklade toho co setne joystick a vypisujeme data z robota(kazdy 5ty krat. ale mozete skusit aj castejsie). vyratajte si polohu. a vypiste spravnu
-    /// tuto joystick cast mozete vklude vymazat,alebo znasilnit na vas regulator alebo ake mate pohnutky... kazdopadne, aktualne to blokuje gombiky cize tak
-    if(forwardspeed==0 && rotationspeed!=0)
-        robot.setRotationSpeed(rotationspeed);
-    else if(forwardspeed!=0 && rotationspeed==0)
-        robot.setTranslationSpeed(forwardspeed);
-    else if((forwardspeed!=0 && rotationspeed!=0))
-        robot.setArcSpeed(forwardspeed,forwardspeed/rotationspeed);
-    else
-        robot.setTranslationSpeed(0);
+    /// tuto joystick cast mozete vklude vymazat,alebo znasilnit na vas regulator alebo ake mate pohnutky... kazdopadne, ak je pripojeny joystick tak aktualne to blokuje gombiky cize tak
+    if(instance->count()>0)
+    {
+        if(forwardspeed==0 && rotationspeed!=0)
+            robot.setRotationSpeed(rotationspeed);
+        else if(forwardspeed!=0 && rotationspeed==0)
+            robot.setTranslationSpeed(forwardspeed);
+        else if((forwardspeed!=0 && rotationspeed!=0))
+            robot.setArcSpeed(forwardspeed,forwardspeed/rotationspeed);
+        else
+            robot.setTranslationSpeed(0);
 
-///TU PISTE KOD... TOTO JE TO MIESTO KED NEVIETE KDE ZACAT,TAK JE TO NAOZAJ TU. AK AJ TAK NEVIETE, SPYTAJTE SA CVICIACEHO MA TU NATO STRING KTORY DA DO HLADANIA XXX
+    }
+
 
     if(datacounter%5)
     {
@@ -186,6 +190,7 @@ int MainWindow::processThisSkeleton(skeleton skeledata)
 }
 void MainWindow::on_pushButton_9_clicked() //start button
 {
+    instance = QJoysticks::getInstance();
 
     forwardspeed=0;
     rotationspeed=0;
@@ -205,7 +210,6 @@ void MainWindow::on_pushButton_9_clicked() //start button
 
 
     //ziskanie joystickov
-    instance = QJoysticks::getInstance();
 
 
     /// prepojenie joysticku s jeho callbackom... zas cez lambdu. neviem ci som to niekde spominal,ale lambdy su super. okrem toho mam este rad ternarne operatory a spolocneske hry ale to tiez nikoho nezaujima
