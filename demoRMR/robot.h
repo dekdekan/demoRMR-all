@@ -2,89 +2,71 @@
 #define ROBOT_H
 
 #include <QObject>
-#include <QWidget>
 #include "librobot.h"
+#include <string>
+
 #ifndef DISABLE_OPENCV
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include "opencv2/imgproc/imgproc.hpp"
-#include "opencv2/highgui/highgui.hpp"
-#include "opencv2/core/utility.hpp"
-#include "opencv2/videoio.hpp"
-#include "opencv2/imgcodecs.hpp"
-
-
+#include <opencv2/core/mat.hpp>
 Q_DECLARE_METATYPE(cv::Mat)
 #endif
+
 #ifndef DISABLE_SKELETON
 Q_DECLARE_METATYPE(skeleton)
 #endif
+
 Q_DECLARE_METATYPE(LaserMeasurement)
+
 class robot : public QObject
 {
     Q_OBJECT
+
 public:
     explicit robot(QObject *parent = nullptr);
 
-    void initAndStartRobot(std::string ipaddress);
+    void initAndStartRobot(const std::string &ipaddress);
+    void setSpeedVal(double forw, double rots);
+    void setSpeed(double forw, double rots);
 
-    //tato funkcia len nastavuje hodnoty.. posielaju sa v callbacku(dobre, kvoli asynchronnosti a zabezpeceniu,ze sa poslu len raz pri viacero prepisoch vramci callu)
-    void setSpeedVal(double forw,double rots);
-    //tato funkcia fyzicky posiela hodnoty do robota
-    void setSpeed(double forw,double rots);
 signals:
     void publishPosition(double x, double y, double z);
     void publishLidar(const LaserMeasurement &lidata);
-    #ifndef DISABLE_OPENCV
+#ifndef DISABLE_OPENCV
     void publishCamera(const cv::Mat &camframe);
 #endif
 #ifndef DISABLE_SKELETON
-void publishSkeleton(const skeleton &skeledata);
+    void publishSkeleton(const skeleton &skeledata);
 #endif
+
 private:
+    double x = 0.0;
+    double y = 0.0;
+    double fi = 0.0;
+    double forwardspeed = 0.0;
+    double rotationspeed = 0.0;
 
-    /// toto su vase premenne na vasu odometriu
-    double x;
-    double y;
-    double fi;
-///-----------------------------
-/// toto su rychlosti ktore sa nastavuju setSpeedVal a posielaju v processThisRobot
-    double forwardspeed;//mm/s
-    double rotationspeed;//omega/s
-
-    ///toto su callbacky co sa sa volaju s novymi datami
     int processThisLidar(LaserMeasurement laserData);
     int processThisRobot(TKobukiData robotdata);
-    #ifndef DISABLE_OPENCV
+#ifndef DISABLE_OPENCV
     int processThisCamera(cv::Mat cameraData);
 #endif
 
-
-    ///pomocne strukutry aby ste si trosku nerobili race conditions
     LaserMeasurement copyOfLaserData;
-    #ifndef DISABLE_OPENCV
+#ifndef DISABLE_OPENCV
     cv::Mat frame[3];
 #endif
-    ///classa ktora riesi komunikaciu s robotom
     libRobot robotCom;
-
-
-    ///pomocne premenne... moc nerieste naco su
-    int datacounter;
-    #ifndef DISABLE_OPENCV
-    bool useCamera1;
-    int actIndex;
+    int datacounter = 0;
+#ifndef DISABLE_OPENCV
+    bool useCamera1 = false;
+    int actIndex = 0;
 #endif
-
 
 #ifndef DISABLE_SKELETON
-int processThisSkeleton(skeleton skeledata);
-int updateSkeletonPicture;
-     skeleton skeleJoints;
+    int processThisSkeleton(skeleton skeledata);
+    int updateSkeletonPicture = 0;
+    skeleton skeleJoints;
 #endif
-    int useDirectCommands;
-
-
+    int useDirectCommands = 0;
 };
 
 #endif // ROBOT_H

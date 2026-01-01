@@ -4,39 +4,27 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
-
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
-greaterThan(QT_MAJOR_VERSION, 5) {
-    message(Using Qt6)
-    DEFINES += USING_QT6
-} else {
-    message(Using Qt5)
-    DEFINES += USING_QT5
-}
-
+QT += core gui widgets
+CONFIG += c++14
 
 include($$PWD/../compile_defines.pri)
 
-!contains(DEFINES, DISABLE_JOYSTICK){
-message(INCLUDUJEM JOYSTICK)
-include ($$PWD/../QJoysticks-master/QJoysticks.pri)
+!contains(DEFINES, DISABLE_JOYSTICK) {
+    message("Including joystick support")
+    include($$PWD/../QJoysticks-master/QJoysticks.pri)
 }
-else
-{
-message(NEINCLUDUJEM JOYSTICK)
-}
+
 TARGET = demoRMR
 TEMPLATE = app
+
 win32 {
-LIBS += -lws2_32
-LIBS += -lWinmm
+    LIBS += -lws2_32 -lWinmm
 }
+
 INCLUDEPATH += ../librobot
 LIBS += -L../bin -llibrobot
 
 !contains(DEFINES, DISABLE_OPENCV) {
-
     win32 {
         greaterThan(QT_MAJOR_VERSION, 5) {
             message(LINKING OpenCV for Qt6)
@@ -110,26 +98,11 @@ LIBS += -L../bin -llibrobot
             }
         }
     }
-
     unix {
+        CONFIG += link_pkgconfig
         PKGCONFIG += opencv4
-        INCLUDEPATH += /usr/local/include/opencv4 /usr/include/opencv4
-        LIBS += -L/usr/local/lib \
-                -l:libopencv_core.so \
-                -l:libopencv_highgui.so \
-                -l:libopencv_imgcodecs.so \
-                -l:libopencv_imgproc.so \
-                -l:libopencv_features2d.so \
-                -l:libopencv_calib3d.so \
-                -l:libopencv_videoio.so \
-                -l:libopencv_ml.so \
-                -l:libopencv_dnn.so \
-                -l:libopencv_flann.so \
-                -l:libopencv_objdetect.so \
-                -l:libopencv_photo.so \
-                -l:libopencv_video.so
     }
-}  # end DISABLE_OPENCV guard
+}
 SOURCES += main.cpp\
         mainwindow.cpp \
         robot.cpp
