@@ -19,7 +19,7 @@
 //#include "ckobuki.h"
 //#include "rplidar.h"
 
-
+#define DISABLE_AMCL
 #include "robot.h"
 #ifndef DISABLE_JOYSTICK
 #include <QJoysticks.h>

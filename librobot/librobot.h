@@ -1,5 +1,6 @@
 #ifndef LIBROBOT_H
 #define LIBROBOT_H
+#define DISABLE_AMCL
 #ifndef DISABLE_OPENCV
 #define useCamera
 #endif
