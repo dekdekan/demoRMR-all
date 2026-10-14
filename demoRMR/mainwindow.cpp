@@ -75,6 +75,66 @@ void MainWindow::paintEvent(QPaintEvent *event)
             painter.setPen(pero);
             //teraz tu kreslime random udaje... vykreslite to co treba... t.j. data z lidaru
             //   std::cout<<copyOfLaserData.numberOfScans<<std::endl;
+#if DEMO_HAS_AMCL
+            if (_robot.isAmclReady()) {
+                const GridMap &map = _robot.getAmclMap();
+                if (map.width > 0 && map.height > 0) {
+                    const double cellWidth =
+                        static_cast<double>(rect.width()) / map.width;
+                    const double cellHeight =
+                        static_cast<double>(rect.height()) / map.height;
+
+                    painter.setPen(QColor(100, 100, 100));
+                    for (int row = 0; row < map.height; ++row) {
+                        for (int column = 0; column < map.width; ++column) {
+                            painter.setBrush(
+                                map.distanceField[map.index(column, row)] == 1
+                                    ? QColor(0, 200, 0)
+                                    : Qt::black);
+                            painter.drawRect(QRectF(
+                                column * cellWidth + rect.left(),
+                                row * cellHeight + rect.top(),
+                                cellWidth, cellHeight));
+                        }
+                    }
+
+                    const Particle robotPose = _robot.getBestParticle();
+                    painter.setPen(QColor(200, 0, 0));
+                    painter.setBrush(QColor(200, 0, 0));
+                    int robotGridX = -1;
+                    int robotGridY = -1;
+                    _robot.getGridCoordinates(robotPose.x, robotPose.y,
+                                              robotGridX, robotGridY);
+                    if (robotGridX >= 0 && robotGridX < map.width &&
+                        robotGridY >= 0 && robotGridY < map.height) {
+                        painter.drawEllipse(
+                            QPointF((robotGridX + 0.5) * cellWidth + rect.left(),
+                                    (robotGridY + 0.5) * cellHeight + rect.top()),
+                            4, 4);
+                    }
+
+                    for (const LaserData &sample : copyOfLaserData) {
+                        const double angle =
+                            robotPose.theta -
+                            sample.scanAngle * 3.14159265358979323846 / 180.0;
+                        const double laserX =
+                            robotPose.x + sample.scanDistance * std::cos(angle);
+                        const double laserY =
+                            robotPose.y + sample.scanDistance * std::sin(angle);
+                        int gridX = -1;
+                        int gridY = -1;
+                        _robot.getGridCoordinates(laserX, laserY, gridX, gridY);
+                        if (gridX >= 0 && gridX < map.width &&
+                            gridY >= 0 && gridY < map.height) {
+                            painter.drawPoint(QPointF(
+                                (gridX + 0.5) * cellWidth + rect.left(),
+                                (gridY + 0.5) * cellHeight + rect.top()));
+                        }
+                    }
+                }
+            } else
+#endif
+            {
             for(const auto &k :copyOfLaserData)
             {
                 int dist=k.scanDistance/20; ///vzdialenost nahodne predelena 20 aby to nejako vyzeralo v okne.. zmen podla uvazenia
@@ -82,6 +142,7 @@ void MainWindow::paintEvent(QPaintEvent *event)
                 int yp=rect.height()-(rect.height()/2+dist*2*cos((360.0-k.scanAngle)*3.14159/180.0))+rect.topLeft().y();//prepocet do obrazovky
                 if(rect.contains(xp,yp))//ak je bod vo vnutri nasho obdlznika tak iba vtedy budem chciet kreslit
                     painter.drawEllipse(QPoint(xp, yp),2,2);
+            }
             }
         }
     }
@@ -110,6 +171,14 @@ void  MainWindow::setUiValues(double robotX,double robotY,double robotFi)
     ui->lineEdit_4->setText(QString::number(robotFi));
 }
 
+#if DEMO_HAS_AMCL
+void MainWindow::setUiAMCLValues(double robotX, double robotY,
+                                 double robotTheta)
+{
+    setUiValues(robotX, robotY, robotTheta);
+}
+#endif
+
 
 void MainWindow::on_pushButton_9_clicked() //start button
 {
@@ -127,6 +196,10 @@ void MainWindow::on_pushButton_9_clicked() //start button
 #endif
 #ifndef DISABLE_SKELETON
     connect(&_robot,SIGNAL(publishSkeleton(const skeleton &)),this,SLOT(paintThisSkeleton(const skeleton &)));
+#endif
+#if DEMO_HAS_AMCL
+    connect(&_robot, &robot::publishAMCLPosition,
+            this, &MainWindow::setUiAMCLValues);
 #endif
 
     _robot.initAndStartRobot(ipaddress);

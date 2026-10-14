@@ -1,5 +1,10 @@
 #include "robot.h"
 
+#if DEMO_HAS_AMCL
+#include <QCoreApplication>
+#include <iostream>
+#endif
+
 robot::robot(QObject *parent) : QObject(parent)
 {
     qRegisterMetaType<LaserMeasurement>("LaserMeasurement");
@@ -20,6 +25,23 @@ void robot::initAndStartRobot(std::string ipaddress)
     /// lambdy su super, setria miesto a ak su rozumnej dlzky,tak aj prehladnost... ak ste o nich nic nepoculi poradte sa s vasim doktorom alebo lekarnikom...
     robotCom.setLaserParameters([this](const std::vector<LaserData>& dat)->int{return processThisLidar(dat);},ipaddress);
     robotCom.setRobotParameters([this](const TKobukiData& dat)->int{return processThisRobot(dat);},ipaddress);
+#if DEMO_HAS_AMCL
+    const std::filesystem::path mapPath =
+        std::filesystem::path(
+            QCoreApplication::applicationDirPath().toLocal8Bit().constData()) /
+        "mapa.txt";
+    std::string amclError;
+    amclReady = robotCom.setAMCLParameters(
+        mapPath, 1500, 0.01, 2.0,
+        [this](float x, float y, float theta) {
+          return processThisAMCLPosition(x, y, theta);
+        },
+        &amclError);
+    if (!amclReady) {
+      std::cerr << "AMCL configuration failed for " << mapPath << ": "
+                << amclError << std::endl;
+    }
+#endif
   #ifndef DISABLE_OPENCV
     robotCom.setCameraParameters(std::bind(&robot::processThisCamera,this,std::placeholders::_1),"http://"+ipaddress+":8000/stream.mjpg");
 #endif
@@ -100,6 +122,14 @@ int robot::processThisRobot(const TKobukiData &robotdata)
     return 0;
 
 }
+
+#if DEMO_HAS_AMCL
+int robot::processThisAMCLPosition(float x, float y, float theta)
+{
+    emit publishAMCLPosition(x, y, theta);
+    return 0;
+}
+#endif
 
 ///toto je calback na data z lidaru, ktory ste podhodili robotu vo funkcii initAndStartRobot
 /// vola sa ked dojdu nove data z lidaru

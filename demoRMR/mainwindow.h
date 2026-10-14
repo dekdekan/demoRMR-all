@@ -81,6 +81,9 @@ private:
 #endif
 public slots:
   void setUiValues(double robotX, double robotY, double robotFi);
+#if DEMO_HAS_AMCL
+  void setUiAMCLValues(double robotX, double robotY, double robotTheta);
+#endif
 };
 
 #endif // MAINWINDOW_H

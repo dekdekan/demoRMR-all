@@ -29,6 +29,15 @@ endif()
 if(DISABLE_JOYSTICK)
     target_compile_definitions(${PROJECT_NAME} PRIVATE DISABLE_JOYSTICK)
 endif()
+if(DISABLE_AMCL)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE DISABLE_AMCL)
+else()
+    configure_file(
+        mapa.txt
+        "${CMAKE_CURRENT_BINARY_DIR}/mapa.txt"
+        COPYONLY
+    )
+endif()
 
 target_link_libraries(${PROJECT_NAME} 
     PRIVATE librobot::librobot

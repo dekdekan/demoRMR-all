@@ -4,6 +4,13 @@
 #include <QObject>
 #include <QWidget>
 
+#if defined(LIBROBOT_HAS_AMCL) && LIBROBOT_HAS_AMCL &&                    \
+    !defined(DISABLE_AMCL)
+#define DEMO_HAS_AMCL 1
+#else
+#define DEMO_HAS_AMCL 0
+#endif
+
 #ifndef DISABLE_OPENCV
 #include "opencv2/core/utility.hpp"
 #include "opencv2/highgui/highgui.hpp"
@@ -32,9 +39,21 @@ public:
   void setSpeedVal(double forw, double rots);
   // tato funkcia fyzicky posiela hodnoty do robota
   void setSpeed(double forw, double rots);
+#if DEMO_HAS_AMCL
+  bool isAmclReady() const { return amclReady; }
+  Particle getBestParticle() const { return robotCom.getBestParticle(); }
+  const GridMap &getAmclMap() const { return robotCom.getAmclMap(); }
+  void getGridCoordinates(double realX, double realY, int &gridX,
+                          int &gridY) const {
+    robotCom.getGridCoordinates(realX, realY, gridX, gridY);
+  }
+#endif
 signals:
   void publishPosition(double x, double y, double z);
   void publishLidar(const std::vector<LaserData> &lidata);
+#if DEMO_HAS_AMCL
+  void publishAMCLPosition(double x, double y, double theta);
+#endif
 #ifndef DISABLE_OPENCV
   void publishCamera(const cv::Mat &camframe);
 #endif
@@ -55,6 +74,9 @@ private:
   /// toto su callbacky co sa sa volaju s novymi datami
   int processThisLidar(const std::vector<LaserData> &laserData);
   int processThisRobot(const TKobukiData &robotdata);
+#if DEMO_HAS_AMCL
+  int processThisAMCLPosition(float x, float y, float theta);
+#endif
 #ifndef DISABLE_OPENCV
   int processThisCamera(cv::Mat cameraData);
 #endif
@@ -80,6 +102,9 @@ private:
   skeleton skeleJoints;
 #endif
   int useDirectCommands;
+#if DEMO_HAS_AMCL
+  bool amclReady{false};
+#endif
 };
 
 #endif // ROBOT_H
